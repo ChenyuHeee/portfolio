@@ -1,11 +1,10 @@
 # CV
 
-- 在线简历：建议在本页维护一份简洁版本
 - 下载简历：[CV.pdf](/assets/CV.pdf)
 
 ## 基本信息
 
 - 姓名：He Chenyu
-- 学校：ZJU CS
+- 学校：Zhengjiang University
 - GitHub：https://github.com/chenyuheee
 
