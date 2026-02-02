@@ -6,6 +6,9 @@ export default defineConfig({
   description: '项目 / 论文 / 荣誉 / 简历',
   base: '/portfolio/',
   themeConfig: {
+    search: {
+      provider: 'local'
+    },
     nav: [
       { text: 'Projects', link: '/projects' },
       { text: 'Publications', link: '/publications' },
