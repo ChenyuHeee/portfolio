@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Runs daily at 03:30 China Standard Time (19:30 UTC)
+    - cron: '30 19 * * *'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +18,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - uses: actions/github-script@v7
+        id: check
+        with:
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const workflow_id = 'deploy.yml'
+            const branch = 'main'
+            const headSha = context.sha
+
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id,
+              branch,
+              status: 'completed',
+              per_page: 30
+            })
+
+            const lastSuccess = data.workflow_runs.find((r) => r.conclusion === 'success')
+            const lastSuccessSha = lastSuccess?.head_sha ?? null
+
+            core.info(`headSha=${headSha}`)
+            core.info(`lastSuccessSha=${lastSuccessSha}`)
+
+            const shouldDeploy = !lastSuccessSha || lastSuccessSha !== headSha
+            core.setOutput('should_deploy', shouldDeploy ? 'true' : 'false')
+
   build:
+    needs: precheck
+    if: needs.precheck.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +68,8 @@ jobs:
           path: .vitepress/dist
 
   deploy:
-    needs: build
+    needs: [precheck, build]
+    if: needs.precheck.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
