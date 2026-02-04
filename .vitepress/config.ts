@@ -5,6 +5,10 @@ export default defineConfig({
   title: 'Portfolio',
   description: '项目 / 论文 / 荣誉 / 简历',
   base: '/portfolio/',
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/portfolio/icon.svg' }],
+    ['meta', { name: 'theme-color', content: '#F59E0B' }]
+  ],
   themeConfig: {
     search: {
       provider: 'local'
